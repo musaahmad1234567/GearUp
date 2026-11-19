@@ -1,0 +1,136 @@
+import 'package:flutter/material.dart';
+
+import 'rental_date_page.dart';
+
+const _pInk = Color(0xFF1B1C1C);
+const _pMuted = Color(0xFF5F5E5E);
+const _pOrange = Color(0xFFF28C28);
+const _pBg = Color(0xFFFBF9F9);
+
+class ProductDetailsPage extends StatefulWidget {
+  const ProductDetailsPage({super.key, required this.name, required this.category, required this.price, required this.rating, required this.reviews, required this.image, required this.icon});
+
+  final String name, category, price, rating, reviews, image;
+  final IconData icon;
+
+  @override
+  State<ProductDetailsPage> createState() => _ProductDetailsPageState();
+}
+
+class _ProductDetailsPageState extends State<ProductDetailsPage> {
+  bool _wishlisted = false;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        backgroundColor: _pBg,
+        appBar: AppBar(
+          backgroundColor: _pBg,
+          surfaceTintColor: _pBg,
+          elevation: 1,
+          leading: IconButton(onPressed: () => Navigator.of(context).maybePop(), icon: const Icon(Icons.arrow_back, color: _pInk)),
+          title: Row(children: [const Icon(Icons.landscape, color: _pOrange, size: 23), const SizedBox(width: 7), const Text('GEARUP', style: TextStyle(color: _pInk, fontSize: 14, fontWeight: FontWeight.w800)), const Spacer(), const Text('Product Details', style: TextStyle(color: _pInk, fontSize: 14, fontWeight: FontWeight.w600))]),
+          actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.tune, color: _pInk))],
+        ),
+        body: Stack(children: [
+          ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 110), children: [
+            ClipRRect(borderRadius: BorderRadius.circular(18), child: AspectRatio(aspectRatio: 1, child: Stack(fit: StackFit.expand, children: [
+              Image.network(widget.image, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE9E8E7), child: Icon(widget.icon, size: 110, color: const Color(0xFF887364)))),
+              Positioned(left: 12, top: 12, child: Wrap(spacing: 6, children: [_badge('verified', 'Alpine Verified'), _badge('circle', 'Available Now')])),
+              Positioned(right: 12, top: 12, child: Material(color: Colors.white.withOpacity(.94), shape: const CircleBorder(), child: InkWell(customBorder: const CircleBorder(), onTap: () => setState(() => _wishlisted = !_wishlisted), child: Padding(padding: const EdgeInsets.all(10), child: Icon(_wishlisted ? Icons.favorite : Icons.favorite_border, color: _wishlisted ? _pOrange : _pInk, size: 21))))),
+              const Positioned(right: 12, bottom: 12, child: _ImageCount()),
+            ]))),
+            const SizedBox(height: 12),
+            _card(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [Expanded(child: Text(widget.category.toUpperCase(), style: const TextStyle(color: _pMuted, fontSize: 10, letterSpacing: .6, fontWeight: FontWeight.w700))), const Icon(Icons.star, color: _pOrange, size: 16), const SizedBox(width: 3), Text(widget.rating, style: const TextStyle(color: _pInk, fontSize: 12, fontWeight: FontWeight.w700)), const SizedBox(width: 4), Text('(${widget.reviews})', style: const TextStyle(color: _pMuted, fontSize: 10))]),
+              const SizedBox(height: 8),
+              Text(widget.name, style: const TextStyle(color: _pInk, fontSize: 21, height: 1.25, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 5),
+              Text('${widget.price} / day', style: const TextStyle(color: Color(0xFF914D00), fontSize: 20, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              const Text('Perlengkapan outdoor berkualitas untuk menemani petualangan Anda. Nyaman digunakan, sudah diperiksa, dan siap disewa.', style: TextStyle(color: _pMuted, fontSize: 13, height: 1.5)),
+            ])),
+            const SizedBox(height: 12),
+            _card(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Product Specifications', style: TextStyle(color: _pInk, fontSize: 16, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 10),
+              Row(children: [Expanded(child: _spec(Icons.inventory_2_outlined, 'Category', widget.category)), const SizedBox(width: 8), Expanded(child: _spec(Icons.verified_outlined, 'Condition', 'Excellent'))]),
+              const SizedBox(height: 8),
+              Row(children: [Expanded(child: _spec(Icons.scale_outlined, 'Weight', 'Lightweight')), const SizedBox(width: 8), Expanded(child: _spec(Icons.cleaning_services_outlined, 'Care', 'Sanitized'))]),
+              const SizedBox(height: 8),
+              _info(Icons.sanitizer_outlined, 'Excellent Condition', 'Cleaned, sanitized, and inspected before every rental.'),
+            ])),
+            const SizedBox(height: 12),
+            _card(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text("What's Included", style: TextStyle(color: _pInk, fontSize: 16, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 9),
+              _included('${widget.name} main unit'),
+              _included('Protective storage bag'),
+              _included('Equipment care guide'),
+            ])),
+            const SizedBox(height: 12),
+            _card(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Text('Rental Information', style: TextStyle(color: _pInk, fontSize: 16, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              const _RentalInfo('Minimum Rental', '1 Day'),
+              const _RentalInfo('Availability Status', 'In Stock (Instant Reserve)'),
+              const _RentalInfo('Pickup / Delivery', 'Basecamp locker or courier'),
+              const SizedBox(height: 8),
+              _info(Icons.assignment_turned_in_outlined, 'Inspection Guarantee', 'Every item is inspected before rental.'),
+            ])),
+          ]),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(.98),
+                boxShadow: const [BoxShadow(color: Color(0x10000000), blurRadius: 16, offset: Offset(0, -3))],
+              ),
+              child: Row(children: [
+                Expanded(
+                  child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('TOTAL PER DAY', style: TextStyle(color: _pMuted, fontSize: 9, letterSpacing: .7)),
+                    Text('${widget.price}/day', style: const TextStyle(color: _pInk, fontSize: 18, fontWeight: FontWeight.w800)),
+                  ]),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 48,
+                    child: FilledButton.icon(
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (_) => RentalDatePage(name: widget.name, category: widget.category, price: widget.price, rating: widget.rating, image: widget.image, icon: widget.icon),
+                      )),
+                      iconAlignment: IconAlignment.end,
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: const Text('Rent Now'),
+                      style: FilledButton.styleFrom(backgroundColor: _pOrange, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13))),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ]),
+      );
+
+  Widget _badge(String icon, String text) => Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6), decoration: BoxDecoration(color: _pInk.withOpacity(.88), borderRadius: BorderRadius.circular(18)), child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(icon == 'verified' ? Icons.verified : Icons.circle, color: _pOrange, size: 12), const SizedBox(width: 5), Text(text, style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700))]));
+  Widget _card({required Widget child}) => Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: const [BoxShadow(color: Color(0x08000000), blurRadius: 6)]), child: child);
+  Widget _spec(IconData icon, String label, String value) => Container(padding: const EdgeInsets.all(11), decoration: BoxDecoration(color: const Color(0xFFF5F3F3), borderRadius: BorderRadius.circular(11)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(icon, color: _pMuted, size: 16), const SizedBox(height: 7), Text(label, style: const TextStyle(color: _pMuted, fontSize: 10)), const SizedBox(height: 2), Text(value, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: _pInk, fontSize: 12, fontWeight: FontWeight.w700))]));
+  Widget _info(IconData icon, String title, String body) => Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFFF5F3F3), borderRadius: BorderRadius.circular(11)), child: Row(children: [Icon(icon, color: _pInk, size: 19), const SizedBox(width: 9), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(color: _pInk, fontSize: 11, fontWeight: FontWeight.w700)), Text(body, style: const TextStyle(color: _pMuted, fontSize: 10))]))]));
+  Widget _included(String text) => Padding(padding: const EdgeInsets.only(bottom: 7), child: Row(children: [const CircleAvatar(radius: 12, backgroundColor: _pInk, child: Icon(Icons.check, color: Colors.white, size: 14)), const SizedBox(width: 9), Expanded(child: Text(text, style: const TextStyle(color: _pInk, fontSize: 12, fontWeight: FontWeight.w500)))]));
+}
+
+class _ImageCount extends StatelessWidget {
+  const _ImageCount();
+  @override
+  Widget build(BuildContext context) => Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5), decoration: BoxDecoration(color: _pInk.withOpacity(.75), borderRadius: BorderRadius.circular(18)), child: const Text('1 / 4', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)));
+}
+
+class _RentalInfo extends StatelessWidget {
+  const _RentalInfo(this.label, this.value);
+  final String label, value;
+  @override
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(children: [Expanded(child: Text(label, style: const TextStyle(color: _pMuted, fontSize: 12))), Flexible(child: Text(value, textAlign: TextAlign.end, style: const TextStyle(color: _pInk, fontSize: 11, fontWeight: FontWeight.w600)))]));
+}
